@@ -10,6 +10,6 @@ for name in $@ ; do
 		contain+=$'\n*\\brief \n*\\author Gaëtan,Lucas\n*\\version 0.1\n*\\date '
 		contain+=$days	
 		echo "$contain" >> $file
-		./ctoh.sh
+		./ctohv2.sh
 	fi	
 done
