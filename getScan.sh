@@ -18,7 +18,8 @@ if [ ! $# -lt 2 ]; then
 fi
 #first use jpscanlib
 . jpscanlib.sh
-getChapterCount "$1"
+URL="http://www.japscan.com/lecture-en-ligne/${1}/"
+getChapterCount "$URL" "$1"
 chapter=$?
 echo $chapter
 if [ $chapter -eq 0 ];then

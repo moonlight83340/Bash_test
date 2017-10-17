@@ -1,6 +1,9 @@
 #!/bin/bash
 #Author Gaëtan
 
+#variable globale
+ISCHAPTER=1
+
 # gets the manga
 #
 # @param string name of manga
@@ -14,7 +17,7 @@ get () {
     local directory="${3:-$PWD}"
     
     # URI to main page of chapter
-    local URL="http://www.japscan.com/lecture-en-ligne/${name}/${chapter}"
+    local URL="http://www.japscan.com/lecture-en-ligne/${name}/"
 
     # directory of chapter
     directory="${directory}/${name}/${chapter}"
@@ -78,8 +81,17 @@ getPageCount () {
 # @return count
 # @access private
 getChapterCount () {
+	local URL="$1"
 	local name="$2"
-    local ChapterCount=$(wget --max-redirect 0 -q "http://www.japscan.com/lecture-en-ligne/${name}/" -O - | grep '<select name="chapitres" id="chapitres" data-uri="' | grep -oP "(?<=<select name=\"chapitres\" id=\"chapitres\" data-uri=\").*?(?=\")")
+    local ChapterCount=$(wget --max-redirect 0 -q "${URL}" -O - | grep '<select name="chapitres" id="chapitres" data-uri="' | grep -oP "(?<=<select name=\"chapitres\" id=\"chapitres\" data-uri=\").*?(?=\")")
+    #si c'est un volume
+    if ! (( $ChapterCount >= 0 )) 2>/dev/null; then
+		ChapterCount=0
+	fi
+    if (( $ChapterCount == 0 ));then
+		ChapterCount=$(wget --max-redirect 0 -q "${URL}" -O - | grep '<select name="chapitres" id="chapitres" data-uri="' | grep -oP "(?<=<select name=\"chapitres\" id=\"chapitres\" data-uri=\"volume-).*?(?=\")")
+		ISCHAPTER=0
+    fi
     return $ChapterCount;
 }
 
@@ -89,7 +101,11 @@ getChapterCount () {
 # @output string URI
 # @access private
 getPageUrl () {
-    echo "http://www.japscan.com/lecture-en-ligne/${1}/${2}/${3}.html"
+	if (( $ISCHAPTER == 1 ));then
+		echo "http://www.japscan.com/lecture-en-ligne/${1}/${2}/${3}.html"
+	else
+		echo "http://www.japscan.com/lecture-en-ligne/${1}/volume-${2}/${3}.html"
+	fi
 }
 
 # downloads all pages
@@ -100,6 +116,7 @@ getPages () {
 	local name="$2"
 	local chapter=$3
 	local directory="$4"
+	echo "$URL"
     getPageCount "$URL"
     local pages=$?
     echo "Found ${pages} pages."
@@ -108,7 +125,7 @@ getPages () {
         URL=$(getPageUrl $name $chapter $i)
         img_url=$(getImageUrl $URL)
         echo -n "Get page ${i} from ${IMAGEURI}... "
-        wget -q ${img_url} --directory-prefix=${directory} -nc
+        wget -q ${img_url} --directory-prefix=${directory} -nc 2>/dev/null
         if [ $? -eq 0 ]; then
             echo ":)"
         else
