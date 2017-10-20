@@ -4,18 +4,10 @@
 #main
 
 usage(){
-	echo "Usage: ./getScan.sh <name-of-manga> [target-dir]";
+	echo "Usage: $0 <name-of-manga> [target-dir]";
 	exit 1;
 }
 
-if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "usage" ];then
-	usage
-	exit 0
-fi
-
-if [ ! $# -lt 2 ]; then
-	usage
-fi
 #first use jpscanlib
 . jpscanlib.sh
 URL="http://www.japscan.com/lecture-en-ligne/${1}/"

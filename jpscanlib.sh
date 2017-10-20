@@ -1,6 +1,7 @@
 #!/bin/bash
 #Author Gaëtan
 
+. utils.sh
 #variable globale
 ISCHAPTER=1
 
@@ -22,7 +23,7 @@ get () {
     # directory of chapter
     directory="${directory}/${name}/${chapter}"
     directory="${directory// /-}"
-	chapiter_exist "$directory"
+	chapter_exist "$directory"
 	if [ $? -eq 1 ];then
 		init "$directory"
 		echo "Get chapter ${chapter}..."
@@ -31,28 +32,6 @@ get () {
 		echo "You already have chapter ${chapter}"
 	fi
     return $?
-}
-
-# @param directory
-# @access private
-init(){
-	local directory="$1"
-	if [ ! -d "${directory}" ]; then
-        mkdir -p "${directory}"
-	fi
-}
-
-# returns if chapter already own
-# @param string directory chapter
-# @return bool
-# @access private
-chapiter_exist(){
-	local directory="$1"
-	if [ ! -d "${directory}" ]; then
-        return 1
-    else
-		return 0
-	fi
 }
 
 # outputs URL of image of given manga page.
